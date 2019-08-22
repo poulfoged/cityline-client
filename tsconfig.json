@@ -1,24 +1,18 @@
 {
     "compilerOptions": {
-      "noImplicitAny": false,
-      "noEmitOnError": true,
-      "sourceMap": true,
-      "target": "esnext",
-      "experimentalDecorators": true,
-      "module": "esnext",
-      "outDir": "dist", 
-      "moduleResolution": "node",
-      "baseUrl": ".",
-      "esModuleInterop": true,      
-      "lib": [
-        "esnext",
-        "dom"
-      ],
-      "declaration": true
+        "noImplicitAny": false,
+        "noEmitOnError": true,
+        "sourceMap": true,
+        "target": "esnext",
+        "experimentalDecorators": true,
+        "module": "esnext",
+        "outDir": "dist",
+        "moduleResolution": "node",
+        "baseUrl": ".",
+        "esModuleInterop": true,
+        "lib": ["esnext", "dom"],
+        "declaration": true
     },
     "compileOnSave": false,
-    "exclude": [
-      "obj",
-      "node_modules"
-    ]
-  }
+    "exclude": ["obj", "node_modules"]
+}

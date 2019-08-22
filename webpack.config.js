@@ -7,7 +7,9 @@ module.exports = {
         path: __dirname + "/dist",
         filename: "CitylineClient.js",
         chunkFilename: "[hash].[name].bundle.js",
-        publicPath: "/"
+        publicPath: "/",
+        library: 'CitylineClient',
+        libraryTarget: 'umd'
     },
     devtool: "source-map",
     resolve: {

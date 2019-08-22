@@ -1,0 +1,35 @@
+{
+    "name": "cityline-client",
+    "version": "1.0.1",
+    "description": "Real-time library for receiving events from Cityline server. Deeply inspired by server sent events but initiated via posts which allow a much bigger state object with state across multiple producers.",
+    "main": "dist/CitylineClient.js",
+    "types": "dist/CitylineClient.d.ts",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/poulfoged/cityline-client.git"
+    },
+    "keywords": [
+        "events",
+        "javascript",
+        "realtime",
+        "typescript"
+    ],
+    "author": "Poul Foged Nielsen",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/poulfoged/cityline-client/issues"
+    },
+    "homepage": "https://github.com/poulfoged/cityline-client#readme",
+    "devDependencies": {
+        "ts-loader": "^6.0.4",
+        "typescript": "^3.5.3",
+        "webpack": "^4.39.2",
+        "webpack-cli": "^3.3.6"
+    },
+    "dependencies": {
+        "@ungap/event-target": "^0.1.0"
+    }
+}

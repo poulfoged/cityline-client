@@ -1,6 +1,6 @@
 {
     "name": "cityline-client",
-    "version": "1.0.3",
+    "version": "1.0.4-beta",
     "description": "Real-time library for receiving events from Cityline server. Deeply inspired by server sent events but initiated via posts which allow a much bigger state object with state across multiple producers.",
     "main": "dist/CitylineClient.js",
     "types": "dist/CitylineClient.d.ts",

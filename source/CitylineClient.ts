@@ -28,15 +28,17 @@ export class CitylineClient {
     }
 
     async getFrames(... names: string[]) : Promise<any[]> {
-        const promises = [];
-        names.forEach(name => {
-            promises.push(new Promise(r => {
+        const promises = names.map(name => {
+            if (this._frames[name]) 
+                return Promise.resolve(this._frames[name]);
+                
+            return new Promise(r => {
                 const handler = (event: CustomEvent<any>) => {
                     this.removeEventListener(name, handler);
                     r(event.detail);
                 };
                 this.addEventListener(name, handler);
-            }));
+            })
         });
 
         return await Promise.all(promises);

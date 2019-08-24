@@ -5,6 +5,7 @@
     "main": "dist/CitylineClient.js",
     "types": "dist/CitylineClient.d.ts",
     "scripts": {
+        "build": "webpack --mode production",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {

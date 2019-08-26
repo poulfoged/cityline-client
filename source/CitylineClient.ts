@@ -5,9 +5,9 @@ export class CitylineClient {
     private _frames: { [key: string]: Frame } = {};
     private _idCache = {};
     
-    constructor(private url: string, private requestFactory: () => RequestInit = () => ({})) {
-        setTimeout(() => {
-            this.startListener();   
+    constructor(private url: string, private requestFactory: () => Promise<RequestInit> = () => Promise.resolve({})) {
+        setTimeout(async () => {
+            await this.startListener();   
         });
     }
 
@@ -31,7 +31,7 @@ export class CitylineClient {
         const promises = names.map(name => {
             if (this._frames[name]) 
                 return Promise.resolve(this._frames[name]);
-                
+            
             return new Promise(r => {
                 const handler = (event: CustomEvent<any>) => {
                     this.removeEventListener(name, handler);
@@ -57,14 +57,15 @@ export class CitylineClient {
         });        
     }
 
-    private buildRequest() : RequestInit {
-        var headers = new Headers();
-        headers.append("Content-Type", "application/json");
-
+    private async buildRequest() : Promise<RequestInit> {
+        const externalRequest = await this.requestFactory();
+        const headers = new Headers(externalRequest.headers);
+        headers.set("Content-Type", "application/json");
+        
         const requestData: CitylineRequest = { tickets: this._idCache };
         const request: RequestInit = {
-            ...{ body: JSON.stringify(requestData), method: "post", headers: headers },
-            ...this.requestFactory()
+            ...externalRequest,
+            ...{ body: JSON.stringify(requestData), method: "post", headers: headers }
         };
         
         return request;
@@ -73,7 +74,7 @@ export class CitylineClient {
     private startListener = async () => {
         try {
             const decoder = new TextDecoder();
-            const response = await fetch(this.url, this.buildRequest());
+            const response = await fetch(this.url, await this.buildRequest());
             const reader = response.body.getReader();
             const buffer = new Buffer();
 
@@ -108,7 +109,7 @@ export class CitylineClient {
             this._frames[frame.event] = frame;
 
             setTimeout(() => {
-                this.eventTarget.dispatchEvent(
+                this.eventTarget.dispatchEvent(                
                     new CustomEvent(frame.event, {
                         detail: frame.data
                     })
@@ -127,12 +128,15 @@ export class CitylineClient {
         const result = { data: undefined };
         lines.forEach(line => {
             const parts = line.split(": ");
+            if (parts.length !== 2)
+                return;
+
             switch (parts[0]) {
                 case "data":
                     result[parts[0]] = JSON.parse(parts[1]);
                     break;
                 default:
-                    result[parts[0]] = parts[1];
+                    result[parts[0]] = parts[1].trim();
             }
         });
         return result;

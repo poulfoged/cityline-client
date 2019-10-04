@@ -34,7 +34,7 @@ See a demo of the server and javascript client [here](https://poulfoged.github.i
 To get started create a new instance of the client pointing directly to the servers cityline endpoint:
 
 ```typescript
-  var client = new CitylineClient(new Uri("https://my-server/cityline"));
+  var client = new CitylineClient("https://my-server/cityline");
 ```
 
 You then subscribe to named events (this mirrors the .Name property of each producer)

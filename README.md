@@ -1,6 +1,7 @@
 ![](https://raw.githubusercontent.com/poulfoged/Cityline.Client/master/icon.png) &nbsp; 
 [![Build status](https://ci.appveyor.com/api/projects/status/alo6m88g5titnq5r?svg=true)](https://ci.appveyor.com/project/poulfoged/cityline-client) &nbsp; 
-[![Nuget version](https://img.shields.io/npm/v/cityline-client)](https://www.npmjs.com/package/cityline-client)
+[![NPM version](https://img.shields.io/npm/v/cityline-client)](https://www.npmjs.com/package/cityline-client) &nbsp;
+[![NPM size](ttps://img.shields.io/bundlephobia/minzip/cityline-client)](https://www.npmjs.com/package/cityline-client) &nbsp;
 
 # Cityline-Client
 

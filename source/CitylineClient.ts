@@ -4,6 +4,15 @@ export class CitylineClient {
     private eventTarget = new EventTarget();
     private _frames: { [key: string]: Frame } = {};
     private _idCache = {};
+    public static terminator = String.fromCharCode(13);
+    private parseFrame = (line: string): Frame => {
+        const frame = JSON.parse(line) as Frame;
+
+        if (frame.data)
+            frame.data = JSON.parse(frame.data);
+
+        return frame;
+    };
     
     constructor(private url: string, private requestFactory: () => Promise<RequestInit> = () => Promise.resolve({})) {
         setTimeout(async () => {
@@ -77,29 +86,52 @@ export class CitylineClient {
             const response = await fetch(this.url, await this.buildRequest());
             const reader = response.body.getReader();
             const buffer = new Buffer();
+            const started = new Date().getTime();
 
+            if (!response.ok) 
+                throw new Error(response.statusText);
+                
             while (true) {
                 const result = await reader.read();
 
                 if (result.done)
-                    throw new Error("Stream should never complete");
+                    break;
 
-                buffer.add(decoder.decode(result.value));
-                
-                while (buffer.hasTerminator()) {
-                    const chunk = buffer.take();
-                    const frame = this.parseFrame(chunk);
-                    this.addFrame(frame);
-                }
+                // all is good, lets reset cooldown
+                this.backawayCooldownSeconds = 0;
+
+                const decoded = decoder.decode(result.value); 
+                buffer.add(decoded);
+
+                let chunk = undefined;
+                do { 
+                    chunk = buffer.take();
+
+                    if (chunk !== undefined) {
+                        const frame = this.parseFrame(chunk);
+                        this.addFrame(frame);
+                    }
+                    
+                } while (chunk !== undefined);
             }
+
+            const timeSpent =  new Date().getTime() - started;
+            // this is normal scenario - if we actually spent time chrunching data we can start quick again
+            if (timeSpent < 5000)
+                throw new Error("Loop ended too quickly, expects atleast 5 seconds");
+
+            setTimeout(this.startListener, 100);
         }
         catch(error) {
             this.eventTarget.dispatchEvent(new CustomEvent("error", { detail: error })); 
+            setTimeout(this.startListener, 1000 * this.backawayCooldownSeconds++);
         }
         finally {
-            setTimeout(this.startListener, 1000);
+            
         }
     }
+
+    private backawayCooldownSeconds = 0;
 
     private addFrame(frame: Frame) {
         if (frame && frame.event) {
@@ -124,45 +156,34 @@ export class CitylineClient {
         }
     }
     
-    private parseFrame(lines: string[]): Frame {
-        const result = { data: undefined };
-        lines.forEach(line => {
-            const parts = line.split(": ");
-            if (parts.length !== 2)
-                return;
+    
 
-            switch (parts[0]) {
-                case "data":
-                    result[parts[0]] = JSON.parse(parts[1]);
-                    break;
-                default:
-                    result[parts[0]] = parts[1].trim();
-            }
-        });
-        return result;
-    }
 }
 
 class Buffer {
-    private _buffer = [];
+    private _buffer = [""];
 
     add(chunk: string) {
-        this._buffer = this._buffer.concat(chunk.split("\n"));
-    }
+        const lines = chunk.split("\n");
+        
+        if (lines.length > 0)
+            this._buffer[this._buffer.length-1] += lines[0];
 
-    hasTerminator() : boolean {
-        return this._buffer.indexOf("") !== -1;
+        if (lines.length > 1)
+            this._buffer = this._buffer.concat(lines.slice(1));
     }
 
     take() {
-        const position = this._buffer.indexOf("");
-        const chunk = this._buffer.slice(0, position);
-        this._buffer = this._buffer.slice(position+1);  
-        return chunk;
-    }
+        if (this._buffer.length === 0)
+            return undefined;
 
-    clear() {
-        this._buffer.length = 0;
+        if ((this._buffer[0].trim().startsWith("{") && this._buffer[0].trim().endsWith("}"))) {
+            const chunk = this._buffer[0];
+            this._buffer = this._buffer.slice(1);
+            return chunk;
+        }
+
+        return undefined;
     }
 }
 
